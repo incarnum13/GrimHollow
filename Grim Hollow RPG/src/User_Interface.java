@@ -32,6 +32,7 @@ public class User_Interface {
                     break;
                 default:
                     System.out.println("please try again");
+                    break;
 
             }
         }
@@ -40,10 +41,9 @@ public class User_Interface {
 
     }
 
-    private static void startNewGame() {
+    public static void startNewGame() {
         CharacterCreation characterCreation = new CharacterCreation();
         GameState gameState = characterCreation.createNewCharacter();
-        gameState.setCurrentLocation("Luna Temple");
 
         boolean gameRunning = true;
 

@@ -1,7 +1,7 @@
 import java.util.Scanner;
 
 public class CharacterCreation {
-    private final Scanner scanner = new Scanner(System.in);
+    public final Scanner scanner = new Scanner(System.in);
 
     public GameState createNewCharacter() {
         System.out.println("Welcome to character Creation");
@@ -12,8 +12,10 @@ public class CharacterCreation {
         String characterClass = promptForClass();
         int[] abilityScores = generateAttributePoints();
         int[] allocatedAttributes = allocateAttributePoints(abilityScores);
+        String startingLocation = promptForStartingLocation();
+        System.out.println("Starting location is: " + startingLocation);
 
-        return new GameState(characterName, characterGender, characterRace, characterClass, allocatedAttributes);
+        return new GameState(characterName, characterGender, characterRace, characterClass, allocatedAttributes, startingLocation);
 
     }
 
@@ -60,29 +62,21 @@ public class CharacterCreation {
         int choice = scanner.nextInt();
         scanner.nextLine(); // Consume the newline left-over
 
-        switch (choice) {
-            case 1:
-                return "Human";
-            case 2:
-                return "Elf";
-            case 3:
-                return "Dwarf";
-            case 4:
-                return "Halfling";
-            case 5:
-                return "Dragonborn";
-            case 6:
-                return "Gnome";
-            case 7:
-                return "Half-Elf";
-            case 8:
-                return "Half-Orc";
-            case 9:
-                return "Tiefling";
-            default:
+        return switch (choice) {
+            case 1 -> "Human";
+            case 2 -> "Elf";
+            case 3 -> "Dwarf";
+            case 4 -> "Halfling";
+            case 5 -> "Dragonborn";
+            case 6 -> "Gnome";
+            case 7 -> "Half-Elf";
+            case 8 -> "Half-Orc";
+            case 9 -> "Tiefling";
+            default -> {
                 System.out.println("Invalid choice. Please choose again.");
-                return promptForRace();
-        }
+                yield promptForRace();
+            }
+        };
     }
 
         private String promptForClass() {
@@ -105,35 +99,25 @@ public class CharacterCreation {
             int choice = scanner.nextInt();
             scanner.nextLine(); // Consume the newline left-over
 
-            switch (choice) {
-                case 1:
-                    return "Barbarian";
-                case 2:
-                    return "Bard";
-                case 3:
-                    return "Cleric";
-                case 4:
-                    return "Druid";
-                case 5:
-                    return "Fighter";
-                case 6:
-                    return "Monk";
-                case 7:
-                    return "Paladin";
-                case 8:
-                    return "Ranger";
-                case 9:
-                    return "Rogue";
-                case 10:
-                    return "Sorcerer";
-                case 11:
-                    return "Warlock";
-                case 12:
-                    return "Wizard";
-                default:
+            // Recursive call for invalid input
+            return switch (choice) {
+                case 1 -> "Barbarian";
+                case 2 -> "Bard";
+                case 3 -> "Cleric";
+                case 4 -> "Druid";
+                case 5 -> "Fighter";
+                case 6 -> "Monk";
+                case 7 -> "Paladin";
+                case 8 -> "Ranger";
+                case 9 -> "Rogue";
+                case 10 -> "Sorcerer";
+                case 11 -> "Warlock";
+                case 12 -> "Wizard";
+                default -> {
                     System.out.println("Invalid choice. Please choose again.");
-                    return promptForClass(); // Recursive call for invalid input
-            }
+                    yield promptForClass();
+                }
+            };
 
         }
             private int[] generateAttributePoints() {
@@ -166,6 +150,13 @@ public class CharacterCreation {
                 boolean validChoice = false;
                 while (!validChoice) {
                     System.out.print("Enter the number of your choice: ");
+
+                    while (!scanner.hasNextInt()) {
+                        System.out.println("Invalid choice. Please select an unused roll.");
+                        scanner.nextLine();
+                        System.out.println("Enter the number of your choice: ");
+                    }
+
                     int choice = scanner.nextInt() - 1;
                     scanner.nextLine(); // Consume newline
 
@@ -197,6 +188,34 @@ public class CharacterCreation {
         } while (!allocationConfirmed);
 
         return allocatedAttributes;
+    }
+
+    private String promptForStartingLocation() {
+        while (true) {
+        System.out.println("Choose your starting location:");
+        System.out.println("1. Luna Temple");
+        System.out.println("2. Oldsewers Dungeon");
+        System.out.print("Enter the number of your choice: ");
+
+        if (scanner.hasNextInt()) {
+            int choice = scanner.nextInt();
+            scanner.nextLine();
+
+        switch (choice) {
+            case 1:
+                return "Luna Temple";
+            case 2:
+                return "Oldsewers";
+            default:
+                System.out.println("Invalid choice. Please choose again.");
+                break;
+
+            }
+        } else{
+                System.out.println("Invalid choice. Please choose again.");
+
+            }
+        }
     }
 
 

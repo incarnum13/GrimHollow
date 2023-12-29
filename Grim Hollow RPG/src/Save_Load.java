@@ -20,4 +20,7 @@ public class Save_Load {
             return null;
         }
     }
+
+    public static void saveGame(GameState gameState, String s) {
+    }
 }
