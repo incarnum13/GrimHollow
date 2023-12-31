@@ -3,7 +3,7 @@ import java.util.Scanner;
 public class Game {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-        GameState gameState = null; // Initially, there is no game state
+        GameState gameState = null;
         CombatManager combatManager = new CombatManager();
         boolean gameRunning = true;
 
@@ -13,14 +13,14 @@ public class Game {
 
             switch (input) {
                 case "new":
-                    // Start a new game
                     CharacterCreation characterCreation = new CharacterCreation();
                     gameState = characterCreation.createNewCharacter();
-                    // Additional setup if needed
+                    // Initiate combat or other gameplay elements
                     break;
                 case "save":
                     if (gameState != null) {
                         Save_Load.saveGame(gameState, "gameSave.dat");
+                        System.out.println("Game state saved.");
                     } else {
                         System.out.println("No game state to save.");
                     }
@@ -34,35 +34,40 @@ public class Game {
                 case "quit":
                     gameRunning = false;
                     break;
+                default:
+                    // Handle other inputs or game actions
+                    break;
             }
-            CharacterCreation characterCreation = new CharacterCreation();
-
-            GameState playerGameState = characterCreation.createNewCharacter();
-            CharacterAttributes playerAttributes = new CharacterAttributes(
-                    playerGameState.getAbilityScores()[0], // Strength
-                    playerGameState.getAbilityScores()[1], // Dexterity
-                    playerGameState.getAbilityScores()[2], // Constitution
-                    playerGameState.getAbilityScores()[3], // Intelligence
-                    playerGameState.getAbilityScores()[4], // Wisdom
-                    playerGameState.getAbilityScores()[5]  // Charisma
-            );
-
-            Combatant playerCharacter = new Combatant(
-                    playerGameState.getCharacterName(),
-                    playerAttributes, 100, 15, 10, 5, true
-            ); // Player-controlled
-
-
-            CharacterAttributes npcAttributes = new CharacterAttributes(8, 10, 12, 14, 16, 18);
-            Combatant npc = new Combatant(
-                    "NPC Name",
-                    npcAttributes,
-                    80, 12, 8, 4, false); // NPC
-
-            combatManager.addCombatant(playerCharacter);
-            combatManager.addCombatant(npc);
-
-            combatManager.startCombat();
         }
+        scanner.close();
+        System.out.println("Game over. Thanks for playing!");
+    }
+
+
+    private static void startInitialCombat(GameState gameState, CombatManager combatManager) {
+        // Create player combatant
+        Combatant playerCharacter = createPlayerCombatant(gameState);
+
+        // Create initial enemy combatant for demonstration
+        // In actual implementation, this should be replaced with actual game logic
+        CharacterAttributes enemyAttributes = new CharacterAttributes(10, 10, 10, 10, 10, 10);
+        Combatant enemy = new Combatant("Enemy", enemyAttributes, 20, 12, 10, 5, false);
+
+        // Add combatants to combat manager and start combat
+        combatManager.addCombatant(playerCharacter);
+        combatManager.addCombatant(enemy);
+        combatManager.startCombat();
+    }
+
+    private static Combatant createPlayerCombatant(GameState gameState) {
+        CharacterAttributes playerAttributes = gameState.getPlayerAttributes();
+        return new Combatant(
+                gameState.getCharacterName(),
+                playerAttributes,
+                gameState.getHitPoints(),
+                gameState.getArmorClass(),
+                gameState.getInitiative(),
+                gameState.getSpeed(),
+                true);
     }
 }

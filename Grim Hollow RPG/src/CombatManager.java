@@ -23,13 +23,13 @@ public class CombatManager {
         runCombat();
     }
 
-    private void rollInitiative() {
+    public void rollInitiative() {
         for (Combatant combatant : combatants) {
             combatant.rollForInitiative();
         }
     }
 
-    private void sortCombatantsByInitiative() {
+    public void sortCombatantsByInitiative() {
         Collections.sort(combatants, (c1, c2) -> c2.getInitiative() -c1.getInitiative());
     }
 

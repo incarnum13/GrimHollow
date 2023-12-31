@@ -1,95 +1,107 @@
-import java.util.Scanner;
+import java.util.List;
 import java.util.Random;
+import java.util.Scanner;
 
 public class Oldsewers {
     private Scanner scanner = new Scanner(System.in);
     private Random random = new Random();
+    private MonsterInitializer initializer = new MonsterInitializer();
 
     public void exploreDungeon(GameState gameState) {
-        System.out.println("You have entered a dark and mysterious dungeon.");
-
+        System.out.println("You have entered the dark and mysterious Oldsewers.");
         boolean exploringOldsewers = true;
+
         while (exploringOldsewers) {
             System.out.println("What would you like to do?");
             System.out.println("1. Explore further");
             System.out.println("2. Exit dungeon");
+            System.out.println("Type 'save' to save the game.");
+            System.out.print("Enter your choice: ");
+            String input = scanner.nextLine();
 
-            System.out.println("Enter your choice: ");
-
-            while (!scanner.hasNextInt()) {
-                System.out.println("Invalid choice. Please try again.");
-                scanner.nextLine();
-                System.out.println("Enter your choice: ");
+            // Check for save command
+            if (GameUtils.checkAndPerformSave(input, gameState)) {
+                continue; // Skip rest of the loop if 'save' was entered
             }
 
-            int choice = scanner.nextInt();
-            scanner.nextLine();
-
-            switch (choice) {
-                case 1:
-                    if (encounterGoblin()) {
-                        System.out.println("You encounter a goblin!");
-                        initiateCombatWithGoblin(gameState);
-                    } else {
-                        System.out.println("You continue exploring the dungeon.");
-                    }
-                    break;
-                case 2:
-                    System.out.println("You exit the dungeon and return to the previous location.");
-                    exploringOldsewers = false;
-                    break;
-                default:
-                    System.out.println("Invalid choice. Please try again.");
-                    break;
+            // Process other commands
+            try {
+                int choice = Integer.parseInt(input);
+                switch (choice) {
+                    case 1:
+                        Combatant monster = getRandomMonster("Oldsewers");
+                        if (monster != null) {
+                            System.out.println("You encounter a " + monster.getName() + "!");
+                            initiateCombat(gameState, monster);
+                        } else {
+                            System.out.println("You continue exploring the dungeon.");
+                        }
+                        break;
+                    case 2:
+                        System.out.println("You exit the dungeon and return to the previous location.");
+                        exploringOldsewers = false;
+                        break;
+                    default:
+                        System.out.println("Invalid choice. Please try again.");
+                        break;
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input. Please enter a number or 'save'.");
             }
         }
-
-        gameState.setCurrentLocation("Oldsewers");
     }
 
-    private boolean encounterGoblin() {
-        System.out.println("encounterGoblin method called.");
-        // Currently always returns true for testing purposes.
-        // Later, replace with random chance logic.
-        return true;
+    private Combatant getRandomMonster(String location) {
+        List<Monsters> possibleMonsters = initializer.getAllMonstersForLocation(location);
+        System.out.println("Possible monsters for " + location + ": " + possibleMonsters.size()); // Debug print
 
+        return possibleMonsters.stream()
+                .peek(monster -> System.out.println("Considering monster: " + monster.getName() + " with spawn chance " + monster.getSpawnChance())) // Debug print
+                .filter(monster -> random.nextDouble() < monster.getSpawnChance())
+                .peek(monster -> System.out.println("Monster " + monster.getName() + " selected for spawn")) // Debug print
+                .findAny()
+                .map(this::convertMonsterToCombatant)
+                .orElse(null);
     }
 
-    private void initiateCombatWithGoblin(GameState gameState) {
-        System.out.println("initiateCombatWithGoblin method called."); // Debug print
+    private Combatant convertMonsterToCombatant(Monsters monster) {
+        if (monster.getAttributes() == null) {
+            System.out.println("Warning: Monster " + monster.getName() + " has null attributes.");
+            return null;
+        }
+        return new Combatant(monster.getName(), monster.getAttributes(), monster.getHitPoints(), monster.getArmorClass(), 10, 5, false);
+    }
 
+    private void initiateCombat(GameState gameState, Combatant monster) {
+        if (monster == null) {
+            System.out.println("Warning: Monster is null, cannot initiate combat.");
+            return;
+        }
         Combatant player = createPlayerCombatant(gameState);
-
-        CharacterAttributes goblinAttributes = new CharacterAttributes(8, 10, 12, 14, 16, 18);
-        Combatant goblin = new Combatant(
-                "Goblin",
-                goblinAttributes,
-                5, 0, 8, 4, false);
-
-        System.out.println("Goblin Armor Class: " + goblin.getArmorClass());// Debug print
-
         CombatManager combatManager = new CombatManager();
         combatManager.addCombatant(player);
-        combatManager.addCombatant(goblin);
+        combatManager.addCombatant(monster);
         combatManager.startCombat();
     }
 
-        private Combatant createPlayerCombatant(GameState gameState) {
-            CharacterAttributes playerAttributes = new CharacterAttributes(
-                    gameState.getAbilityScores()[0], // Strength
-                    gameState.getAbilityScores()[1], // Dexterity
-                    gameState.getAbilityScores()[2], // Constitution
-                    gameState.getAbilityScores()[3], // Intelligence
-                    gameState.getAbilityScores()[4], // Wisdom
-                    gameState.getAbilityScores()[5]  // Charisma
-            );
-            // this is the goblins stats
-            int playerHP = 20;
-            int playerArmorClass = 5;
-            int playerInitiative = 10;
-            int playerSpeed = 5;
+    private Combatant createPlayerCombatant(GameState gameState) {
+        CharacterAttributes playerAttributes = new CharacterAttributes(
+                gameState.getAbilityScores()[0], // Strength
+                gameState.getAbilityScores()[1], // Dexterity
+                gameState.getAbilityScores()[2], // Constitution
+                gameState.getAbilityScores()[3], // Intelligence
+                gameState.getAbilityScores()[4], // Wisdom
+                gameState.getAbilityScores()[5]  // Charisma
+        );
 
-            return new Combatant(gameState.getCharacterName(), playerAttributes, playerHP, playerArmorClass, playerInitiative, playerSpeed, true);
+        int playerHP = gameState.getHitPoints();
+        int playerArmorClass = gameState.getArmorClass();
+        int playerInitiative = gameState.getInitiative();
+        int playerSpeed = gameState.getSpeed();
 
+        return new Combatant(gameState.getCharacterName(), playerAttributes, playerHP, playerArmorClass, playerInitiative, playerSpeed, true);
     }
 }
+
+
+

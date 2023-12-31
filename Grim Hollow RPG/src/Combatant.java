@@ -15,6 +15,10 @@ public class Combatant implements CombatInterface{
     private boolean isPlayerControlled;
 
     public Combatant(String name, CharacterAttributes attributes, int hitPoints, int armorClass, int initiative, int speed, boolean isPlayerControlled) {
+        System.out.println("Creating Combatant: " + name);
+        if (attributes == null) {
+            System.out.println("Warning: Creating Combatant with null attributes.");
+        }
         this.attributes = attributes;
         this.hitPoints = hitPoints;
         this.armorClass = armorClass;
@@ -75,8 +79,16 @@ public class Combatant implements CombatInterface{
     }
 
     public void rollForInitiative() {
+        if (this.attributes == null) {
+            System.out.println("Warning: Attempting to roll initiative for " + this.name + " with null attributes.");
+            return; // Prevent NullPointerException
+        }
         Random rand = new Random();
-        this.initiative = rand.nextInt(20) + 1 + attributes.getDexterityModifier();
+        int roll = rand.nextInt(20) + 1;
+        this.initiative = roll + this.attributes.getDexterityModifier();
+
+        // Debug print to show the initiative roll details
+        System.out.println("Initiative roll for " + this.name + ": Roll = " + roll + ", Dex Modifier = " + this.attributes.getDexterityModifier() + ", Total Initiative = " + this.initiative);
     }
 
     public boolean isPlayerControlled() {

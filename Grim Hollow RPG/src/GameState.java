@@ -2,7 +2,6 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-
 public class GameState implements Serializable {
     private String characterName;
     private String characterGender;
@@ -13,8 +12,13 @@ public class GameState implements Serializable {
     private boolean gameOver;
     private boolean exitRequested;
     private Map<String, Object> inventory;
+    private int hitPoints; // Added field
+    private int armorClass; // Added field
+    private int initiative; // Added field
+    private int speed; // Added field
 
-    public GameState(String characterName, String characterGender, String characterRace, String characterClass, int[] abilityScores, String startingLocation) {
+    public GameState(String characterName, String characterGender, String characterRace,
+                     String characterClass, int[] abilityScores, String startingLocation) {
         this.characterName = characterName;
         this.characterGender = characterGender;
         this.characterRace = characterRace;
@@ -25,7 +29,10 @@ public class GameState implements Serializable {
         this.exitRequested = false;
         this.inventory = new HashMap<>();
         this.inventory.put("Gold", 0);
-
+        this.hitPoints = 100; // Example value, adjust as needed
+        this.armorClass = 10; // Example value
+        this.initiative = 10; // Example value
+        this.speed = 5; // Example value
     }
 
     public String getCharacterName() {
@@ -101,6 +108,45 @@ public class GameState implements Serializable {
     }
 
     public CharacterAttributes getPlayerAttributes() {
-        return null;
+        return new CharacterAttributes(
+                abilityScores[0], // Strength
+                abilityScores[1], // Dexterity
+                abilityScores[2], // Constitution
+                abilityScores[3], // Intelligence
+                abilityScores[4], // Wisdom
+                abilityScores[5]  // Charisma
+        );
+    }
+
+    public int getHitPoints() {
+        return hitPoints;
+    }
+
+    public void setHitPoints(int hitPoints) {
+        this.hitPoints = hitPoints;
+    }
+
+    public int getArmorClass() {
+        return armorClass;
+    }
+
+    public void setArmorClass(int armorClass) {
+        this.armorClass = armorClass;
+    }
+
+    public int getInitiative() {
+        return initiative;
+    }
+
+    public void setInitiative(int initiative) {
+        this.initiative = initiative;
+    }
+
+    public int getSpeed() {
+        return speed;
+    }
+
+    public void setSpeed(int speed) {
+        this.speed = speed;
     }
 }

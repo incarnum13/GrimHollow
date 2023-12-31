@@ -24,6 +24,6 @@ public abstract class Armor {
             super("leather", 1);
         }
     }
-
+ 
 }
 
